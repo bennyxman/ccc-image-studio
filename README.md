@@ -1,6 +1,6 @@
 # CCC Image Studio
 
-**Professionelle Bildbearbeitung im Browser — by Continental Capital Connect**
+**Professionelle Bildbearbeitung im Browser — by BridgepointAfreuropa**
 
 🔗 **Live Demo:** [https://bennyxman.github.io/ccc-image-studio](https://bennyxman.github.io/ccc-image-studio)
 
@@ -54,6 +54,6 @@ Alle Bildbearbeitung findet **lokal im Browser** statt. Es werden **keine Bilder
 
 ---
 
-Entwickelt für **Continental Capital Connect (CCC)** — Connecting European Investors with African & European Opportunities.
+Entwickelt für **BridgepointAfreuropa** — Connecting European Investors with African & European Opportunities.
 
-© 2026 Continental Capital Connect
+© 2026 BridgepointAfreuropa
