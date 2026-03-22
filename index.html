@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCC Image Studio</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230d1117'/><text x='16' y='22' text-anchor='middle' font-size='18' fill='%23c8956c'>C</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-deep:#08090d;--bg-panel:#0f1118;--bg-card:#151821;--bg-hover:#1a1e2a;
+  --border:#1e2433;--border-active:#c8956c;
+  --text-primary:#e8e4df;--text-secondary:#7a7d87;--text-muted:#4a4d57;
+  --accent:#c8956c;--accent-glow:#c8956c33;--accent-bright:#e0b08a;
+  --danger:#e05252;--success:#5cb86c;
+  --glass:rgba(15,17,24,0.92);
+  --radius:10px;--radius-lg:14px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg-deep);color:var(--text-primary);font-family:'DM Sans',sans-serif}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:9px}::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--border);border-radius:4px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid var(--bg-panel);cursor:pointer;box-shadow:0 0 8px var(--accent-glow)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid var(--bg-panel);cursor:pointer}
+input[type=text],input[type=number],select{background:var(--bg-deep);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;color:var(--text-primary);font-family:inherit;font-size:12px;outline:none;transition:border .2s}
+input[type=text]:focus,select:focus{border-color:var(--accent)}
+select{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237a7d87'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+select option{background:var(--bg-panel);color:var(--text-primary)}
+button{font-family:inherit;cursor:pointer;border:none;outline:none;transition:all .2s}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:300px;min-width:300px;background:var(--bg-panel);border-right:1px solid var(--border);display:flex;flex-direction:column;position:relative;z-index:10}
+.sidebar::after{content:'';position:absolute;top:0;right:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--accent)0%,transparent 30%,transparent 70%,var(--accent)100%);opacity:.3}
+.sidebar-header{padding:16px 18px 12px;border-bottom:1px solid var(--border)}
+.header-top{display:flex;align-items:center;gap:10px}
+.logo-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8a6040);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:17px;color:#fff;font-weight:700;flex-shrink:0}
+.logo-text{font-size:12px;font-weight:700;letter-spacing:2.5px;color:var(--accent)}
+.logo-sub{font-size:9px;color:var(--text-muted);letter-spacing:.8px;margin-top:1px}
+.header-actions{display:flex;gap:3px;margin-left:auto}
+.icon-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);font-size:13px}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.icon-btn.disabled{opacity:.25;pointer-events:none}
+.file-info{font-size:10px;color:var(--text-muted);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;gap:2px;padding:8px 10px 4px;flex-wrap:wrap}
+.tab{flex:1 0 23%;padding:8px 2px 6px;text-align:center;font-size:9px;font-weight:600;color:var(--text-muted);background:transparent;border-radius:var(--radius);letter-spacing:.2px;position:relative;overflow:hidden;line-height:1.3}
+.tab::before{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--accent);border-radius:2px;transform:scaleX(0);transition:transform .25s}
+.tab:hover{color:var(--text-secondary);background:var(--bg-hover)}
+.tab.active{color:var(--accent);background:rgba(200,149,108,.06)}
+.tab.active::before{transform:scaleX(1)}
+.tab-icon{font-size:15px;margin-bottom:2px;display:block}
+.panel{flex:1;overflow-y:auto;padding:14px 16px 80px}
+.section-label{font-size:9px;font-weight:700;color:var(--text-muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.slider-group{margin-bottom:12px}
+.slider-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.slider-label{font-size:11px;font-weight:500;color:var(--text-secondary)}
+.slider-value{font-size:11px;font-weight:700;color:var(--accent);min-width:36px;text-align:right}
+.btn-grid{display:grid;gap:5px}
+.btn-grid.cols-2{grid-template-columns:1fr 1fr}
+.btn-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+.btn-grid.cols-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.action-btn{padding:9px 8px;font-size:11px;font-weight:600;color:var(--text-secondary);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);text-align:center;letter-spacing:.2px}
+.action-btn:hover{border-color:var(--accent);color:var(--text-primary);background:var(--bg-hover)}
+.action-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,149,108,.08)}
+.action-btn.primary{background:linear-gradient(135deg,var(--accent),#a07048);color:#fff;border-color:transparent;font-weight:700}
+.action-btn.primary:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 16px var(--accent-glow)}
+.action-btn.danger{border-color:var(--danger);color:var(--danger)}
+.action-btn.danger:hover{background:rgba(224,82,82,.1)}
+.color-row{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
+.color-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.color-dot:hover{transform:scale(1.15)}
+.color-dot.active{border-color:var(--accent);box-shadow:0 0 10px var(--accent-glow)}
+.filter-card{padding:10px 8px;font-size:10px;font-weight:600;color:var(--text-secondary);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);text-align:center;cursor:pointer;position:relative;overflow:hidden}
+.filter-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,var(--accent-glow));opacity:0;transition:opacity .2s}
+.filter-card:hover{border-color:var(--accent);color:var(--text-primary)}
+.filter-card:hover::after{opacity:1}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:6px;background:var(--bg-panel)}
+.footer-btn{flex:1;padding:9px;font-size:10px;font-weight:600;border-radius:var(--radius);color:var(--text-secondary);background:var(--bg-card);border:1px solid var(--border)}
+.footer-btn:hover{border-color:var(--accent);color:var(--text-primary)}
+.footer-btn.export{flex:1.5;background:linear-gradient(135deg,var(--accent),#a07048);color:#fff;border:none;font-weight:700;letter-spacing:.5px}
+.footer-btn.export:hover{filter:brightness(1.1);box-shadow:0 4px 20px var(--accent-glow)}
+.canvas-area{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:var(--bg-deep)}
+.canvas-bg{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,#141722 1px,transparent 0);background-size:24px 24px;opacity:.6}
+.canvas-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(8,9,13,.7)100%);pointer-events:none}
+.canvas-wrapper{position:relative;line-height:0;z-index:2}
+.canvas-wrapper img{display:block;max-width:min(100%,calc(100vw - 380px));max-height:85vh;transition:filter .3s,transform .3s}
+.crop-ov{position:absolute;border:2px dashed var(--accent);background:rgba(200,149,108,.08);pointer-events:none;z-index:5}
+.mosaic-ov{position:absolute;border:2px dashed #e09050;background:rgba(224,144,80,.08);pointer-events:none;z-index:5}
+.annot-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:4}
+.wm-ov{position:absolute;z-index:6;pointer-events:none;font-weight:700;letter-spacing:1px;text-shadow:1px 2px 6px rgba(0,0,0,.6),0 0 20px rgba(0,0,0,.3)}
+/* Checker pattern for transparency */
+.checker-bg{background-image:linear-gradient(45deg,#1a1e2a 25%,transparent 25%),linear-gradient(-45deg,#1a1e2a 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#1a1e2a 75%),linear-gradient(-45deg,transparent 75%,#1a1e2a 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}
+/* Welcome */
+.welcome{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg-deep);position:relative;overflow:hidden}
+.welcome-bg{position:absolute;inset:0}
+.welcome-bg::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg at 50% 50%,transparent 0deg,var(--accent-glow) 60deg,transparent 120deg);animation:spin 15s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.welcome-card{position:relative;z-index:2;text-align:center;padding:52px 48px;border-radius:24px;background:var(--glass);backdrop-filter:blur(40px);border:1px solid var(--border);max-width:480px;width:92%}
+.welcome-logo{width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,var(--accent),#8a6040);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:28px;color:#fff;margin:0 auto 18px;box-shadow:0 8px 32px var(--accent-glow)}
+.welcome-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--text-primary);margin-bottom:5px}
+.welcome-sub{color:var(--text-muted);font-size:12px;margin-bottom:32px}
+.drop-zone{padding:40px 28px;border:2px dashed var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all .3s}
+.drop-zone:hover{border-color:var(--accent);background:rgba(200,149,108,.04)}
+.drop-zone-icon{font-size:26px;color:var(--accent);margin-bottom:6px}
+.drop-zone-text{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:3px}
+.drop-zone-hint{font-size:11px;color:var(--text-muted)}
+.welcome-lang{margin-top:24px;display:flex;justify-content:center;gap:8px}
+.lang-btn{padding:6px 14px;font-size:11px;font-weight:600;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;color:var(--text-secondary);cursor:pointer;transition:all .2s}
+.lang-btn:hover,.lang-btn.active{border-color:var(--accent);color:var(--accent)}
+.welcome-footer{margin-top:24px;font-size:9px;color:var(--text-muted);letter-spacing:.5px}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s}
+.modal{background:var(--bg-panel);border:1px solid var(--border);border-radius:20px;max-width:520px;width:92%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700;color:var(--text-primary)}
+.modal-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);font-size:16px;cursor:pointer}
+.modal-close:hover{border-color:var(--accent);color:var(--accent)}
+.modal-body{padding:24px;overflow-y:auto;font-size:13px;line-height:1.7;color:var(--text-secondary)}
+.modal-body h3{color:var(--text-primary);font-size:13px;margin:16px 0 6px;font-weight:700}
+.modal-body h3:first-child{margin-top:0}
+.modal-body a{color:var(--accent)}
+.modal-body kbd{background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:11px;font-family:monospace;color:var(--accent)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:12px;font-weight:600;color:var(--text-primary)}
+.setting-desc{font-size:10px;color:var(--text-muted);margin-top:2px}
+/* Processing overlay */
+.processing{position:absolute;inset:0;background:rgba(8,9,13,.8);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.processing-text{font-size:13px;color:var(--accent);font-weight:600}
+/* BG color picker */
+.bg-colors{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.bg-color-btn{width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.bg-color-btn:hover{transform:scale(1.1)}
+.bg-color-btn.active{border-color:var(--accent);box-shadow:0 0 10px var(--accent-glow)}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg-card);border:1px solid var(--accent);border-radius:var(--radius);padding:12px 20px;color:var(--accent);font-size:12px;font-weight:600;z-index:999;transform:translateY(80px);opacity:0;transition:all .35s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.panel>*{animation:fadeIn .25s ease backwards}
+.panel>*:nth-child(1){animation-delay:.03s}.panel>*:nth-child(2){animation-delay:.06s}.panel>*:nth-child(3){animation-delay:.09s}.panel>*:nth-child(4){animation-delay:.12s}.panel>*:nth-child(5){animation-delay:.15s}.panel>*:nth-child(6){animation-delay:.18s}
+.hint{font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:12px}
+@media(max-width:768px){.app{flex-direction:column}.sidebar{width:100%;min-width:unset;max-height:50vh;border-right:none;border-bottom:1px solid var(--border)}.sidebar::after{display:none}.canvas-wrapper img{max-width:90vw;max-height:40vh}}
+</style>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+<div id="modal"></div>
+<div id="app"></div>
+<script>
+// ═══════════════════════════════════════════════════════════
+// CCC IMAGE STUDIO v2.0 — Multi-Language Professional Editor
+// ═══════════════════════════════════════════════════════════
+
+// ─── TRANSLATIONS ────────────────────────────────────────
+const T = {
+de: {
+  welcome_title:"Image Studio",welcome_sub:"Professionelle Bildbearbeitung — by Continental Capital Connect",
+  upload:"Bild auswählen",upload_hint:"Drag & Drop oder klicken • JPG, PNG, WebP",version:"VERSION 2.0",
+  tab_adjust:"Korrektur",tab_filter:"Filter",tab_crop:"Zuschneiden",tab_annotate:"Annotieren",
+  tab_mosaic:"Mosaik",tab_frame:"Rahmen",tab_watermark:"Wasserz.",tab_bg:"Hintergrund",
+  sec_adjustments:"Anpassungen",brightness:"Helligkeit",contrast:"Kontrast",saturation:"Sättigung",
+  grayscale:"Graustufen",sepia:"Sepia",hue:"Farbton",blur:"Weichzeichner",
+  sec_presets:"Voreinstellungen",sec_transform:"Transformieren",rotation:"Drehung",
+  flip_h:"↔ Horiz.",flip_v:"↕ Vertikal",crop_hint:"Ziehe einen Bereich auf dem Bild um zuzuschneiden.",
+  crop_apply:"✓ Zuschneiden",sec_tool:"Werkzeug",draw:"✏ Zeichnen",text:"T Text",
+  text_placeholder:"Text eingeben, dann klicken...",sec_color:"Farbe",strength:"Stärke",
+  clear_all:"🗑 Alle löschen",sec_pixelate:"Verpixelung",
+  mosaic_hint:"Ziehe einen Bereich um ihn zu verpixeln. Ideal für Gesichter oder sensible Daten.",
+  mosaic_apply:"✓ Mosaik anwenden",sec_frames:"Rahmenauswahl",sec_watermark:"Wasserzeichen",
+  wm_placeholder:"z.B. © CCC 2026",sec_position:"Position",tl:"↖ Oben L.",tr:"↗ Oben R.",
+  bl:"↙ Unten L.",br:"↘ Unten R.",opacity:"Deckkraft",
+  sec_bg_remove:"Hintergrund entfernen",bg_hint:"Entferne den Hintergrund und ersetze ihn durch eine Farbe oder ein eigenes Bild.",
+  bg_remove_btn:"🪄 Hintergrund entfernen",bg_processing:"Verarbeite...",
+  sec_bg_replace:"Hintergrund ersetzen",bg_color:"Farbe wählen",bg_image:"Eigenes Bild",bg_transparent:"Transparent",
+  bg_custom_color:"Eigene Farbe:",
+  reset:"↺ Reset",new_file:"+ Neu",export_btn:"⬇ Export",
+  settings:"Einstellungen",about:"Über",help:"Hilfe",new_window:"Neues Fenster",
+  settings_title:"Einstellungen",lang_label:"Sprache",lang_desc:"Ändere die Anzeigesprache",
+  quality_label:"Export-Qualität",quality_desc:"PNG (verlustfrei) oder JPEG (kleiner)",
+  about_title:"Über CCC Image Studio",
+  about_body:`<h3>CCC Image Studio v2.0</h3>
+    <p>Professionelle Bildbearbeitung direkt im Browser. Entwickelt für <strong>Continental Capital Connect</strong> — Connecting European Investors with African & European Opportunities.</p>
+    <h3>Datenschutz</h3>
+    <p>Alle Bearbeitung findet <strong>lokal in deinem Browser</strong> statt. Es werden keine Bilder hochgeladen oder an Server gesendet.</p>
+    <h3>Technologie</h3>
+    <p>Standalone HTML • Vanilla JavaScript • Canvas API • Keine Abhängigkeiten</p>
+    <p style="margin-top:16px;color:var(--text-muted)">© 2026 Continental Capital Connect</p>`,
+  help_title:"Hilfe",
+  help_body:`<h3>Tastenkürzel</h3>
+    <p><kbd>Strg</kbd>+<kbd>Z</kbd> — Rückgängig<br><kbd>Strg</kbd>+<kbd>Y</kbd> — Wiederholen<br><kbd>Strg</kbd>+<kbd>S</kbd> — Exportieren<br><kbd>Strg</kbd>+<kbd>V</kbd> — Bild aus Zwischenablage einfügen</p>
+    <h3>Bild laden</h3><p>Drag & Drop, Dateiauswahl oder Strg+V aus der Zwischenablage.</p>
+    <h3>Zuschneiden</h3><p>Wechsle zum Tab "Zuschneiden", ziehe einen Bereich auf dem Bild und klicke "Zuschneiden".</p>
+    <h3>Mosaik</h3><p>Markiere einen Bereich zum Verpixeln — ideal für Datenschutz.</p>
+    <h3>Hintergrund entfernen</h3><p>Nutzt eine lokale Farbanalyse um den Hintergrund zu erkennen. Klicke auf den Bereich den du als Hintergrund definieren möchtest. Ersetze ihn dann durch eine Farbe oder ein eigenes Bild.</p>
+    <h3>Export</h3><p>Klicke "Export" um das bearbeitete Bild als PNG herunterzuladen.</p>`,
+  toast_exported:"Bild exportiert!",toast_cropped:"Zugeschnitten!",toast_mosaic:"Mosaik angewendet!",
+  toast_reset:"Zurückgesetzt!",toast_bg_removed:"Hintergrund entfernt!",toast_bg_replaced:"Hintergrund ersetzt!",
+  frame_none:"Keiner",frame_thin:"Fein",frame_classic:"Klassisch",frame_shadow:"Schatten",
+  frame_round:"Rund",frame_polaroid:"Polaroid",frame_gold:"Gold",frame_double:"Doppelt",
+  bg_click_hint:"Klicke auf den Hintergrundbereich im Bild. Toleranz mit dem Slider anpassen.",
+  tolerance:"Toleranz"
+},
+en: {
+  welcome_title:"Image Studio",welcome_sub:"Professional Image Editing — by Continental Capital Connect",
+  upload:"Choose Image",upload_hint:"Drag & Drop or click • JPG, PNG, WebP",version:"VERSION 2.0",
+  tab_adjust:"Adjust",tab_filter:"Filter",tab_crop:"Crop",tab_annotate:"Annotate",
+  tab_mosaic:"Mosaic",tab_frame:"Frame",tab_watermark:"Watermark",tab_bg:"Background",
+  sec_adjustments:"Adjustments",brightness:"Brightness",contrast:"Contrast",saturation:"Saturation",
+  grayscale:"Grayscale",sepia:"Sepia",hue:"Hue",blur:"Blur",
+  sec_presets:"Presets",sec_transform:"Transform",rotation:"Rotation",
+  flip_h:"↔ Horiz.",flip_v:"↕ Vertical",crop_hint:"Draw a region on the image to crop.",
+  crop_apply:"✓ Crop",sec_tool:"Tool",draw:"✏ Draw",text:"T Text",
+  text_placeholder:"Enter text, then click on image...",sec_color:"Color",strength:"Strength",
+  clear_all:"🗑 Clear all",sec_pixelate:"Pixelate",
+  mosaic_hint:"Draw a region to pixelate. Ideal for faces or sensitive data.",
+  mosaic_apply:"✓ Apply Mosaic",sec_frames:"Frame Selection",sec_watermark:"Watermark",
+  wm_placeholder:"e.g. © CCC 2026",sec_position:"Position",tl:"↖ Top L.",tr:"↗ Top R.",
+  bl:"↙ Bottom L.",br:"↘ Bottom R.",opacity:"Opacity",
+  sec_bg_remove:"Remove Background",bg_hint:"Remove the background and replace it with a color or custom image.",
+  bg_remove_btn:"🪄 Remove Background",bg_processing:"Processing...",
+  sec_bg_replace:"Replace Background",bg_color:"Choose Color",bg_image:"Custom Image",bg_transparent:"Transparent",
+  bg_custom_color:"Custom color:",
+  reset:"↺ Reset",new_file:"+ New",export_btn:"⬇ Export",
+  settings:"Settings",about:"About",help:"Help",new_window:"New Window",
+  settings_title:"Settings",lang_label:"Language",lang_desc:"Change display language",
+  quality_label:"Export Quality",quality_desc:"PNG (lossless) or JPEG (smaller file)",
+  about_title:"About CCC Image Studio",
+  about_body:`<h3>CCC Image Studio v2.0</h3>
+    <p>Professional image editing in your browser. Built for <strong>Continental Capital Connect</strong> — Connecting European Investors with African & European Opportunities.</p>
+    <h3>Privacy</h3><p>All editing happens <strong>locally in your browser</strong>. No images are uploaded or sent to any server.</p>
+    <h3>Technology</h3><p>Standalone HTML • Vanilla JavaScript • Canvas API • Zero dependencies</p>
+    <p style="margin-top:16px;color:var(--text-muted)">© 2026 Continental Capital Connect</p>`,
+  help_title:"Help",
+  help_body:`<h3>Keyboard Shortcuts</h3>
+    <p><kbd>Ctrl</kbd>+<kbd>Z</kbd> — Undo<br><kbd>Ctrl</kbd>+<kbd>Y</kbd> — Redo<br><kbd>Ctrl</kbd>+<kbd>S</kbd> — Export<br><kbd>Ctrl</kbd>+<kbd>V</kbd> — Paste image from clipboard</p>
+    <h3>Load Image</h3><p>Drag & drop, file picker, or Ctrl+V from clipboard.</p>
+    <h3>Crop</h3><p>Switch to Crop tab, draw a region, and click Crop.</p>
+    <h3>Mosaic</h3><p>Select a region to pixelate — great for privacy.</p>
+    <h3>Background Removal</h3><p>Uses local color analysis to detect the background. Click on the area you want to define as background, then replace with a color or image.</p>
+    <h3>Export</h3><p>Click Export to download your edited image as PNG.</p>`,
+  toast_exported:"Image exported!",toast_cropped:"Cropped!",toast_mosaic:"Mosaic applied!",
+  toast_reset:"Reset!",toast_bg_removed:"Background removed!",toast_bg_replaced:"Background replaced!",
+  frame_none:"None",frame_thin:"Thin",frame_classic:"Classic",frame_shadow:"Shadow",
+  frame_round:"Round",frame_polaroid:"Polaroid",frame_gold:"Gold",frame_double:"Double",
+  bg_click_hint:"Click on the background area in the image. Adjust tolerance with the slider.",
+  tolerance:"Tolerance"
+},
+es: {
+  welcome_title:"Image Studio",welcome_sub:"Edición profesional de imágenes — por Continental Capital Connect",
+  upload:"Elegir imagen",upload_hint:"Arrastra o haz clic • JPG, PNG, WebP",version:"VERSIÓN 2.0",
+  tab_adjust:"Ajustar",tab_filter:"Filtro",tab_crop:"Recortar",tab_annotate:"Anotar",
+  tab_mosaic:"Mosaico",tab_frame:"Marco",tab_watermark:"Marca",tab_bg:"Fondo",
+  sec_adjustments:"Ajustes",brightness:"Brillo",contrast:"Contraste",saturation:"Saturación",
+  grayscale:"Escala gris",sepia:"Sepia",hue:"Tono",blur:"Desenfoque",
+  sec_presets:"Preajustes",sec_transform:"Transformar",rotation:"Rotación",
+  flip_h:"↔ Horiz.",flip_v:"↕ Vertical",crop_hint:"Dibuja un área en la imagen para recortar.",
+  crop_apply:"✓ Recortar",sec_tool:"Herramienta",draw:"✏ Dibujar",text:"T Texto",
+  text_placeholder:"Escribe texto, luego haz clic...",sec_color:"Color",strength:"Grosor",
+  clear_all:"🗑 Borrar todo",sec_pixelate:"Pixelar",
+  mosaic_hint:"Dibuja un área para pixelar. Ideal para rostros o datos sensibles.",
+  mosaic_apply:"✓ Aplicar mosaico",sec_frames:"Selección de marco",sec_watermark:"Marca de agua",
+  wm_placeholder:"ej. © CCC 2026",sec_position:"Posición",tl:"↖ Arr. I.",tr:"↗ Arr. D.",
+  bl:"↙ Abj. I.",br:"↘ Abj. D.",opacity:"Opacidad",
+  sec_bg_remove:"Eliminar fondo",bg_hint:"Elimina el fondo y reemplázalo con un color o imagen.",
+  bg_remove_btn:"🪄 Eliminar fondo",bg_processing:"Procesando...",
+  sec_bg_replace:"Reemplazar fondo",bg_color:"Elegir color",bg_image:"Imagen propia",bg_transparent:"Transparente",
+  bg_custom_color:"Color personalizado:",
+  reset:"↺ Reset",new_file:"+ Nuevo",export_btn:"⬇ Exportar",
+  settings:"Ajustes",about:"Acerca de",help:"Ayuda",new_window:"Nueva ventana",
+  settings_title:"Ajustes",lang_label:"Idioma",lang_desc:"Cambiar idioma",
+  quality_label:"Calidad de exportación",quality_desc:"PNG (sin pérdida) o JPEG (más pequeño)",
+  about_title:"Acerca de CCC Image Studio",
+  about_body:`<h3>CCC Image Studio v2.0</h3><p>Edición profesional en el navegador. Desarrollado para <strong>Continental Capital Connect</strong>.</p><h3>Privacidad</h3><p>Todo se procesa <strong>localmente</strong>. Ninguna imagen se sube a servidores.</p><p style="margin-top:16px;color:var(--text-muted)">© 2026 Continental Capital Connect</p>`,
+  help_title:"Ayuda",help_body:`<h3>Atajos</h3><p><kbd>Ctrl</kbd>+<kbd>Z</kbd> — Deshacer<br><kbd>Ctrl</kbd>+<kbd>Y</kbd> — Rehacer<br><kbd>Ctrl</kbd>+<kbd>S</kbd> — Exportar</p><h3>Fondo</h3><p>Haz clic en el fondo de la imagen para seleccionarlo, luego reemplázalo.</p>`,
+  toast_exported:"¡Imagen exportada!",toast_cropped:"¡Recortado!",toast_mosaic:"¡Mosaico aplicado!",
+  toast_reset:"¡Reiniciado!",toast_bg_removed:"¡Fondo eliminado!",toast_bg_replaced:"¡Fondo reemplazado!",
+  frame_none:"Ninguno",frame_thin:"Fino",frame_classic:"Clásico",frame_shadow:"Sombra",
+  frame_round:"Redondo",frame_polaroid:"Polaroid",frame_gold:"Dorado",frame_double:"Doble",
+  bg_click_hint:"Haz clic en el área de fondo. Ajusta la tolerancia con el slider.",tolerance:"Tolerancia"
+},
+pt: {
+  welcome_title:"Image Studio",welcome_sub:"Edição profissional de imagens — por Continental Capital Connect",
+  upload:"Escolher imagem",upload_hint:"Arrastar ou clicar • JPG, PNG, WebP",version:"VERSÃO 2.0",
+  tab_adjust:"Ajustar",tab_filter:"Filtro",tab_crop:"Recortar",tab_annotate:"Anotar",
+  tab_mosaic:"Mosaico",tab_frame:"Moldura",tab_watermark:"Marca",tab_bg:"Fundo",
+  sec_adjustments:"Ajustes",brightness:"Brilho",contrast:"Contraste",saturation:"Saturação",
+  grayscale:"Escala cinza",sepia:"Sépia",hue:"Matiz",blur:"Desfoque",
+  sec_presets:"Predefinições",sec_transform:"Transformar",rotation:"Rotação",
+  flip_h:"↔ Horiz.",flip_v:"↕ Vertical",crop_hint:"Desenhe uma área na imagem para recortar.",
+  crop_apply:"✓ Recortar",sec_tool:"Ferramenta",draw:"✏ Desenhar",text:"T Texto",
+  text_placeholder:"Digite o texto, depois clique...",sec_color:"Cor",strength:"Espessura",
+  clear_all:"🗑 Apagar tudo",sec_pixelate:"Pixelizar",
+  mosaic_hint:"Desenhe uma área para pixelizar. Ideal para rostos ou dados sensíveis.",
+  mosaic_apply:"✓ Aplicar mosaico",sec_frames:"Seleção de moldura",sec_watermark:"Marca d'água",
+  wm_placeholder:"ex. © CCC 2026",sec_position:"Posição",tl:"↖ Sup. E.",tr:"↗ Sup. D.",
+  bl:"↙ Inf. E.",br:"↘ Inf. D.",opacity:"Opacidade",
+  sec_bg_remove:"Remover fundo",bg_hint:"Remova o fundo e substitua por uma cor ou imagem.",
+  bg_remove_btn:"🪄 Remover fundo",bg_processing:"Processando...",
+  sec_bg_replace:"Substituir fundo",bg_color:"Escolher cor",bg_image:"Imagem própria",bg_transparent:"Transparente",
+  bg_custom_color:"Cor personalizada:",
+  reset:"↺ Reset",new_file:"+ Novo",export_btn:"⬇ Exportar",
+  settings:"Definições",about:"Sobre",help:"Ajuda",new_window:"Nova janela",
+  settings_title:"Definições",lang_label:"Idioma",lang_desc:"Alterar idioma de exibição",
+  quality_label:"Qualidade de exportação",quality_desc:"PNG (sem perdas) ou JPEG (menor)",
+  about_title:"Sobre CCC Image Studio",
+  about_body:`<h3>CCC Image Studio v2.0</h3><p>Edição profissional no navegador. Desenvolvido para <strong>Continental Capital Connect</strong>.</p><h3>Privacidade</h3><p>Tudo é processado <strong>localmente</strong>. Nenhuma imagem é enviada a servidores.</p><p style="margin-top:16px;color:var(--text-muted)">© 2026 Continental Capital Connect</p>`,
+  help_title:"Ajuda",help_body:`<h3>Atalhos</h3><p><kbd>Ctrl</kbd>+<kbd>Z</kbd> — Desfazer<br><kbd>Ctrl</kbd>+<kbd>Y</kbd> — Refazer<br><kbd>Ctrl</kbd>+<kbd>S</kbd> — Exportar</p><h3>Fundo</h3><p>Clique na área de fundo da imagem para selecioná-la, depois substitua.</p>`,
+  toast_exported:"Imagem exportada!",toast_cropped:"Recortado!",toast_mosaic:"Mosaico aplicado!",
+  toast_reset:"Reiniciado!",toast_bg_removed:"Fundo removido!",toast_bg_replaced:"Fundo substituído!",
+  frame_none:"Nenhum",frame_thin:"Fino",frame_classic:"Clássico",frame_shadow:"Sombra",
+  frame_round:"Redondo",frame_polaroid:"Polaroid",frame_gold:"Dourado",frame_double:"Duplo",
+  bg_click_hint:"Clique na área de fundo. Ajuste a tolerância com o slider.",tolerance:"Tolerância"
+},
+fr: {
+  welcome_title:"Image Studio",welcome_sub:"Édition d'images professionnelle — par Continental Capital Connect",
+  upload:"Choisir une image",upload_hint:"Glisser-déposer ou cliquer • JPG, PNG, WebP",version:"VERSION 2.0",
+  tab_adjust:"Réglage",tab_filter:"Filtre",tab_crop:"Recadrer",tab_annotate:"Annoter",
+  tab_mosaic:"Mosaïque",tab_frame:"Cadre",tab_watermark:"Filigrane",tab_bg:"Arrière-plan",
+  sec_adjustments:"Réglages",brightness:"Luminosité",contrast:"Contraste",saturation:"Saturation",
+  grayscale:"Niveaux de gris",sepia:"Sépia",hue:"Teinte",blur:"Flou",
+  sec_presets:"Préréglages",sec_transform:"Transformer",rotation:"Rotation",
+  flip_h:"↔ Horiz.",flip_v:"↕ Vertical",crop_hint:"Dessinez une zone sur l'image pour recadrer.",
+  crop_apply:"✓ Recadrer",sec_tool:"Outil",draw:"✏ Dessiner",text:"T Texte",
+  text_placeholder:"Saisissez le texte, puis cliquez...",sec_color:"Couleur",strength:"Épaisseur",
+  clear_all:"🗑 Tout effacer",sec_pixelate:"Pixéliser",
+  mosaic_hint:"Dessinez une zone à pixéliser. Idéal pour visages ou données sensibles.",
+  mosaic_apply:"✓ Appliquer mosaïque",sec_frames:"Sélection de cadre",sec_watermark:"Filigrane",
+  wm_placeholder:"ex. © CCC 2026",sec_position:"Position",tl:"↖ Haut G.",tr:"↗ Haut D.",
+  bl:"↙ Bas G.",br:"↘ Bas D.",opacity:"Opacité",
+  sec_bg_remove:"Supprimer l'arrière-plan",bg_hint:"Supprimez l'arrière-plan et remplacez-le par une couleur ou une image.",
+  bg_remove_btn:"🪄 Supprimer l'arrière-plan",bg_processing:"Traitement...",
+  sec_bg_replace:"Remplacer l'arrière-plan",bg_color:"Choisir couleur",bg_image:"Image personnalisée",bg_transparent:"Transparent",
+  bg_custom_color:"Couleur personnalisée :",
+  reset:"↺ Reset",new_file:"+ Nouveau",export_btn:"⬇ Exporter",
+  settings:"Paramètres",about:"À propos",help:"Aide",new_window:"Nouvelle fenêtre",
+  settings_title:"Paramètres",lang_label:"Langue",lang_desc:"Changer la langue d'affichage",
+  quality_label:"Qualité d'export",quality_desc:"PNG (sans perte) ou JPEG (plus petit)",
+  about_title:"À propos de CCC Image Studio",
+  about_body:`<h3>CCC Image Studio v2.0</h3><p>Édition professionnelle dans le navigateur. Développé pour <strong>Continental Capital Connect</strong>.</p><h3>Confidentialité</h3><p>Tout est traité <strong>localement</strong>. Aucune image n'est envoyée à des serveurs.</p><p style="margin-top:16px;color:var(--text-muted)">© 2026 Continental Capital Connect</p>`,
+  help_title:"Aide",help_body:`<h3>Raccourcis</h3><p><kbd>Ctrl</kbd>+<kbd>Z</kbd> — Annuler<br><kbd>Ctrl</kbd>+<kbd>Y</kbd> — Rétablir<br><kbd>Ctrl</kbd>+<kbd>S</kbd> — Exporter</p><h3>Arrière-plan</h3><p>Cliquez sur la zone d'arrière-plan pour la sélectionner, puis remplacez-la.</p>`,
+  toast_exported:"Image exportée !",toast_cropped:"Recadré !",toast_mosaic:"Mosaïque appliquée !",
+  toast_reset:"Réinitialisé !",toast_bg_removed:"Arrière-plan supprimé !",toast_bg_replaced:"Arrière-plan remplacé !",
+  frame_none:"Aucun",frame_thin:"Fin",frame_classic:"Classique",frame_shadow:"Ombre",
+  frame_round:"Rond",frame_polaroid:"Polaroid",frame_gold:"Doré",frame_double:"Double",
+  bg_click_hint:"Cliquez sur la zone d'arrière-plan. Ajustez la tolérance avec le curseur.",tolerance:"Tolérance"
+}
+};
+
+const FILTERS=[{name:"Original",v:{}},{name:"Vivid",v:{saturate:140,contrast:115}},{name:"Warm",v:{sepia:22,saturate:120,brightness:105}},{name:"Cool",v:{hueRotate:18,saturate:85,brightness:105}},{name:"Cinema",v:{contrast:125,saturate:80,brightness:95,sepia:8}},{name:"B&W",v:{grayscale:100}},{name:"Vintage",v:{sepia:40,contrast:88,brightness:92}},{name:"Drama",v:{contrast:145,saturate:75,brightness:92}},{name:"Fade",v:{contrast:82,brightness:112,saturate:78}},{name:"Noir",v:{grayscale:100,contrast:135,brightness:88}},{name:"Sharp",v:{contrast:128,saturate:115}},{name:"Amber",v:{sepia:30,saturate:130,brightness:102,hueRotate:5}}];
+const FRAME_KEYS=['frame_none','frame_thin','frame_classic','frame_shadow','frame_round','frame_polaroid','frame_gold','frame_double'];
+const FRAME_STYLES=[{},{border:"1px solid rgba(200,149,108,.4)"},{border:"6px solid #1a1a2e",boxShadow:"inset 0 0 0 1.5px #c8956c"},{boxShadow:"0 12px 48px rgba(0,0,0,.5)"},{borderRadius:"50%",border:"3px solid #c8956c",boxShadow:"0 8px 32px rgba(0,0,0,.4)"},{border:"14px solid #f5f0eb",borderBottom:"52px solid #f5f0eb",boxShadow:"0 6px 24px rgba(0,0,0,.25)"},{border:"4px solid #c8956c",boxShadow:"0 0 0 1px #8a6040,0 8px 32px rgba(200,149,108,.2)"},{border:"3px solid #e8e4df",outline:"3px solid #c8956c",outlineOffset:"4px"}];
+
+let lang='de'; try{const bl=navigator.language.slice(0,2);if(T[bl])lang=bl;}catch(e){}
+function t(key){return T[lang]?.[key]||T['en']?.[key]||key}
+
+const defAdj={brightness:100,contrast:100,saturate:100,grayscale:0,sepia:0,hueRotate:0,blur:0,invert:0};
+let S={image:null,origImage:null,fileName:'',tab:'adjust',adj:{...defAdj},rotation:0,flipH:false,flipV:false,frame:0,annotations:[],annotMode:null,annotColor:'#e05252',annotSize:3,drawing:false,currentPath:[],textInput:'',cropMode:false,cropStart:null,cropEnd:null,isCropping:false,mosaicMode:false,mosaicStart:null,mosaicEnd:null,isMosaicing:false,watermark:'',wmPos:'br',wmOpacity:40,history:[],histIdx:-1,bgMask:null,bgTolerance:32,bgColor:'#1a1a2e',bgMode:'select',exportFormat:'png',processing:false};
+let imgEl=null,wrapEl=null;
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function buildFilter(a){let p=[];if(a.brightness!==100)p.push(`brightness(${a.brightness}%)`);if(a.contrast!==100)p.push(`contrast(${a.contrast}%)`);if(a.saturate!==100)p.push(`saturate(${a.saturate}%)`);if(a.grayscale)p.push(`grayscale(${a.grayscale}%)`);if(a.sepia)p.push(`sepia(${a.sepia}%)`);if(a.hueRotate)p.push(`hue-rotate(${a.hueRotate}deg)`);if(a.blur)p.push(`blur(${a.blur}px)`);if(a.invert)p.push(`invert(${a.invert}%)`);return p.join(' ')||'none'}
+function pushHist(){const sn=JSON.parse(JSON.stringify({adj:S.adj,rotation:S.rotation,flipH:S.flipH,flipV:S.flipV,frame:S.frame,annotations:S.annotations,watermark:S.watermark,wmPos:S.wmPos,wmOpacity:S.wmOpacity}));S.history=S.history.slice(0,S.histIdx+1);S.history.push(sn);S.histIdx=S.history.length-1}
+function restoreSnap(sn){S.adj={...sn.adj};S.rotation=sn.rotation;S.flipH=sn.flipH;S.flipV=sn.flipV;S.frame=sn.frame;S.annotations=[...sn.annotations];S.watermark=sn.watermark;S.wmPos=sn.wmPos;S.wmOpacity=sn.wmOpacity}
+function undo(){if(S.histIdx>0){S.histIdx--;restoreSnap(S.history[S.histIdx]);render()}}
+function redo(){if(S.histIdx<S.history.length-1){S.histIdx++;restoreSnap(S.history[S.histIdx]);render()}}
+
+function loadFile(file){if(!file||!file.type.startsWith('image/'))return;S.fileName=file.name;const r=new FileReader();r.onload=e=>{S.image=e.target.result;S.origImage=e.target.result;S.adj={...defAdj};S.rotation=0;S.flipH=false;S.flipV=false;S.frame=0;S.annotations=[];S.watermark='';S.history=[];S.histIdx=-1;S.bgMask=null;S.tab='adjust';pushHist();render()};r.readAsDataURL(file)}
+function setTab(t){S.tab=t;S.cropMode=(t==='crop');S.mosaicMode=(t==='mosaic');S.annotMode=(t==='annotate'?'draw':null);S.bgMode=(t==='bg'?'select':S.bgMode);S.cropStart=S.cropEnd=S.mosaicStart=S.mosaicEnd=null;render()}
+function setAdj(k,v){pushHist();S.adj[k]=v;render()}
+function applyFilter(f){pushHist();S.adj={...defAdj,...f.v};render()}
+
+// ─── BACKGROUND REMOVAL (flood fill) ────────────
+function removeBgAtPoint(x,y){
+  if(!imgEl)return;
+  S.processing=true;render();
+  setTimeout(()=>{
+    const c=document.createElement('canvas');c.width=imgEl.naturalWidth;c.height=imgEl.naturalHeight;
+    const ctx=c.getContext('2d');ctx.drawImage(imgEl,0,0);
+    const d=ctx.getImageData(0,0,c.width,c.height);
+    const px=d.data;const w=c.width;const h=c.height;
+    const tol=S.bgTolerance;
+    // Get target color
+    const idx=(y*w+x)*4;const tr=px[idx],tg=px[idx+1],tb=px[idx+2];
+    // Flood fill with tolerance
+    const visited=new Uint8Array(w*h);
+    const stack=[[x,y]];
+    const mask=new Uint8Array(w*h);
+    while(stack.length>0){
+      const[cx,cy]=stack.pop();
+      if(cx<0||cx>=w||cy<0||cy>=h)continue;
+      const pi=cy*w+cx;
+      if(visited[pi])continue;
+      visited[pi]=1;
+      const i=pi*4;
+      const dr=Math.abs(px[i]-tr),dg=Math.abs(px[i+1]-tg),db=Math.abs(px[i+2]-tb);
+      if(dr<=tol&&dg<=tol&&db<=tol){
+        mask[pi]=1;
+        stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+      }
+    }
+    // Smooth mask edges
+    const mask2=new Uint8Array(mask);
+    for(let pass=0;pass<2;pass++){
+      for(let yy=1;yy<h-1;yy++)for(let xx=1;xx<w-1;xx++){
+        const i=yy*w+xx;
+        const sum=mask[i-1]+mask[i+1]+mask[i-w]+mask[i+w];
+        if(sum>=3)mask2[i]=1;
+        if(sum<=1)mask2[i]=0;
+      }
+      mask.set(mask2);
+    }
+    // Apply: make masked pixels transparent
+    for(let i=0;i<w*h;i++){if(mask[i])px[i*4+3]=0;}
+    ctx.putImageData(d,0,0);
+    S.image=c.toDataURL('image/png');
+    S.bgMask=mask;
+    S.processing=false;
+    pushHist();toast(t('toast_bg_removed'));render();
+  },50);
+}
+
+function replaceBgColor(color){
+  if(!imgEl)return;
+  const c=document.createElement('canvas');c.width=imgEl.naturalWidth;c.height=imgEl.naturalHeight;
+  const ctx=c.getContext('2d');
+  if(color==='transparent'){
+    ctx.drawImage(imgEl,0,0);
+  } else {
+    ctx.fillStyle=color;ctx.fillRect(0,0,c.width,c.height);
+    ctx.drawImage(imgEl,0,0);
+  }
+  S.image=c.toDataURL('image/png');
+  pushHist();toast(t('toast_bg_replaced'));render();
+}
+
+function replaceBgImage(file){
+  if(!file||!imgEl)return;
+  const r=new FileReader();r.onload=e=>{
+    const bgImg=new Image();bgImg.onload=()=>{
+      const c=document.createElement('canvas');c.width=imgEl.naturalWidth;c.height=imgEl.naturalHeight;
+      const ctx=c.getContext('2d');
+      ctx.drawImage(bgImg,0,0,c.width,c.height);
+      ctx.drawImage(imgEl,0,0);
+      S.image=c.toDataURL('image/png');
+      pushHist();toast(t('toast_bg_replaced'));render();
+    };bgImg.src=e.target.result;
+  };r.readAsDataURL(file);
+}
+
+function exportImage(){
+  if(!imgEl)return;const c=document.createElement('canvas');
+  const rot=S.rotation%180!==0;const cw=rot?imgEl.naturalHeight:imgEl.naturalWidth;const ch=rot?imgEl.naturalWidth:imgEl.naturalHeight;
+  c.width=cw;c.height=ch;const ctx=c.getContext('2d');
+  ctx.save();ctx.translate(cw/2,ch/2);ctx.rotate(S.rotation*Math.PI/180);ctx.scale(S.flipH?-1:1,S.flipV?-1:1);
+  ctx.filter=buildFilter(S.adj);ctx.drawImage(imgEl,-imgEl.naturalWidth/2,-imgEl.naturalHeight/2);ctx.restore();
+  const scl=imgEl.naturalWidth/(wrapEl?.offsetWidth||imgEl.naturalWidth);
+  S.annotations.forEach(a=>{if(a.type==='path'){ctx.beginPath();ctx.strokeStyle=a.color;ctx.lineWidth=a.size*scl;ctx.lineCap='round';ctx.lineJoin='round';a.points.forEach((p,i)=>{if(i===0)ctx.moveTo(p.x*scl,p.y*scl);else ctx.lineTo(p.x*scl,p.y*scl)});ctx.stroke()}else if(a.type==='text'){ctx.font=`bold ${a.size*6*scl}px 'DM Sans',sans-serif`;ctx.fillStyle=a.color;ctx.fillText(a.text,a.x*scl,a.y*scl)}});
+  if(S.watermark){ctx.save();ctx.globalAlpha=S.wmOpacity/100;const fs=Math.max(18,cw*.03);ctx.font=`bold ${fs}px 'DM Sans',sans-serif`;ctx.fillStyle='#fff';ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=2;const m=ctx.measureText(S.watermark);const pad=fs;let wx,wy;if(S.wmPos==='tl'){wx=pad;wy=pad+fs}else if(S.wmPos==='tr'){wx=cw-m.width-pad;wy=pad+fs}else if(S.wmPos==='bl'){wx=pad;wy=ch-pad}else{wx=cw-m.width-pad;wy=ch-pad}ctx.strokeText(S.watermark,wx,wy);ctx.fillText(S.watermark,wx,wy);ctx.restore()}
+  const link=document.createElement('a');const ext=S.exportFormat==='jpeg'?'jpg':'png';
+  link.download=`CCC_${S.fileName||'image'}.${ext}`;
+  link.href=S.exportFormat==='jpeg'?c.toDataURL('image/jpeg',.92):c.toDataURL('image/png');
+  link.click();toast(t('toast_exported'));
+}
+
+function applyCrop(){if(!S.cropStart||!S.cropEnd||!imgEl||!wrapEl)return;const rect=wrapEl.getBoundingClientRect();const sx=imgEl.naturalWidth/rect.width,sy=imgEl.naturalHeight/rect.height;const x1=Math.min(S.cropStart.x,S.cropEnd.x)*sx;const y1=Math.min(S.cropStart.y,S.cropEnd.y)*sy;const cw=Math.abs(S.cropEnd.x-S.cropStart.x)*sx;const ch=Math.abs(S.cropEnd.y-S.cropStart.y)*sy;if(cw<10||ch<10)return;const c=document.createElement('canvas');c.width=cw;c.height=ch;c.getContext('2d').drawImage(imgEl,x1,y1,cw,ch,0,0,cw,ch);S.image=c.toDataURL('image/png');S.cropStart=S.cropEnd=null;S.cropMode=false;pushHist();toast(t('toast_cropped'));render()}
+function applyMosaic(){if(!S.mosaicStart||!S.mosaicEnd||!imgEl||!wrapEl)return;const rect=wrapEl.getBoundingClientRect();const sx=imgEl.naturalWidth/rect.width,sy=imgEl.naturalHeight/rect.height;const x1=Math.round(Math.min(S.mosaicStart.x,S.mosaicEnd.x)*sx);const y1=Math.round(Math.min(S.mosaicStart.y,S.mosaicEnd.y)*sy);const mw=Math.round(Math.abs(S.mosaicEnd.x-S.mosaicStart.x)*sx);const mh=Math.round(Math.abs(S.mosaicEnd.y-S.mosaicStart.y)*sy);if(mw<5||mh<5)return;const c=document.createElement('canvas');c.width=imgEl.naturalWidth;c.height=imgEl.naturalHeight;const ctx=c.getContext('2d');ctx.drawImage(imgEl,0,0);const ps=14;const d=ctx.getImageData(x1,y1,mw,mh);for(let y=0;y<mh;y+=ps)for(let x=0;x<mw;x+=ps){const i=(y*mw+x)*4;ctx.fillStyle=`rgb(${d.data[i]},${d.data[i+1]},${d.data[i+2]})`;ctx.fillRect(x1+x,y1+y,ps,ps)}S.image=c.toDataURL('image/png');S.mosaicStart=S.mosaicEnd=null;pushHist();toast(t('toast_mosaic'));render()}
+function getRelPos(e,el){const r=el.getBoundingClientRect();const cx=e.touches?e.touches[0].clientX:e.clientX;const cy=e.touches?e.touches[0].clientY:e.clientY;return{x:cx-r.left,y:cy-r.top}}
+function resetAll(){pushHist();S.adj={...defAdj};S.rotation=0;S.flipH=false;S.flipV=false;S.frame=0;S.annotations=[];S.watermark='';S.bgMask=null;if(S.origImage)S.image=S.origImage;toast(t('toast_reset'));render()}
+
+function showModal(title,body){document.getElementById('modal').innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-header"><div class="modal-title">${title}</div><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body">${body}</div></div></div>`}
+function closeModal(){document.getElementById('modal').innerHTML=''}
+function showSettings(){
+  showModal(t('settings_title'),`
+    <div class="setting-row"><div><div class="setting-label">${t('lang_label')}</div><div class="setting-desc">${t('lang_desc')}</div></div>
+    <select id="langSelect" style="width:130px"><option value="de" ${lang==='de'?'selected':''}>🇩🇪 Deutsch</option><option value="en" ${lang==='en'?'selected':''}>🇬🇧 English</option><option value="es" ${lang==='es'?'selected':''}>🇪🇸 Español</option><option value="pt" ${lang==='pt'?'selected':''}>🇵🇹 Português</option><option value="fr" ${lang==='fr'?'selected':''}>🇫🇷 Français</option></select></div>
+    <div class="setting-row"><div><div class="setting-label">${t('quality_label')}</div><div class="setting-desc">${t('quality_desc')}</div></div>
+    <select id="fmtSelect" style="width:130px"><option value="png" ${S.exportFormat==='png'?'selected':''}>PNG</option><option value="jpeg" ${S.exportFormat==='jpeg'?'selected':''}>JPEG</option></select></div>`);
+  document.getElementById('langSelect').onchange=e=>{lang=e.target.value;closeModal();render()};
+  document.getElementById('fmtSelect').onchange=e=>{S.exportFormat=e.target.value};
+}
+
+// ─── RENDER ──────────────────────────────────────
+function render(){
+  const app=document.getElementById('app');
+  if(!S.image){
+    app.innerHTML=`<div class="welcome" id="ws"><div class="welcome-bg"></div><div class="welcome-card">
+      <div class="welcome-logo">C</div><div class="welcome-title">${t('welcome_title')}</div>
+      <div class="welcome-sub">${t('welcome_sub')}</div>
+      <div class="drop-zone" id="dz"><div class="drop-zone-icon">⬆</div><div class="drop-zone-text">${t('upload')}</div><div class="drop-zone-hint">${t('upload_hint')}</div></div>
+      <input type="file" id="fi" accept="image/*" style="display:none">
+      <div class="welcome-lang">${['de','en','es','pt','fr'].map(l=>`<button class="lang-btn ${lang===l?'active':''}" data-lang="${l}">${{de:'🇩🇪 DE',en:'🇬🇧 EN',es:'🇪🇸 ES',pt:'🇵🇹 PT',fr:'🇫🇷 FR'}[l]}</button>`).join('')}</div>
+      <div class="welcome-footer">${t('version')}</div></div></div>`;
+    document.getElementById('dz').onclick=()=>document.getElementById('fi').click();
+    document.getElementById('fi').onchange=e=>loadFile(e.target.files[0]);
+    document.querySelectorAll('[data-lang]').forEach(el=>el.onclick=()=>{lang=el.dataset.lang;render()});
+    const ws=document.getElementById('ws');ws.ondragover=e=>e.preventDefault();ws.ondrop=e=>{e.preventDefault();loadFile(e.dataTransfer.files[0])};return;
+  }
+
+  const tabs=[{id:'adjust',icon:'◐',k:'tab_adjust'},{id:'filter',icon:'◈',k:'tab_filter'},{id:'crop',icon:'⬔',k:'tab_crop'},{id:'annotate',icon:'✎',k:'tab_annotate'},{id:'mosaic',icon:'▦',k:'tab_mosaic'},{id:'frame',icon:'❑',k:'tab_frame'},{id:'watermark',icon:'◎',k:'tab_watermark'},{id:'bg',icon:'🪄',k:'tab_bg'}];
+  const fs=FRAME_STYLES[S.frame]||{};const fsCss=Object.entries(fs).map(([k,v])=>`${k.replace(/([A-Z])/g,'-$1').toLowerCase()}:${v}`).join(';');
+
+  let panel='';
+  if(S.tab==='adjust'){
+    const sl=[['brightness',20,200,'%'],['contrast',20,200,'%'],['saturation',0,200,'%'],['grayscale',0,100,'%'],['sepia',0,100,'%'],['hue',0,360,'°'],['blur',0,20,'px']];
+    const keyMap={brightness:'brightness',contrast:'contrast',saturation:'saturate',grayscale:'grayscale',sepia:'sepia',hue:'hueRotate',blur:'blur'};
+    panel=`<div class="section-label">${t('sec_adjustments')}</div>`+sl.map(([l,mn,mx,u])=>{const k=keyMap[l];return`<div class="slider-group"><div class="slider-head"><span class="slider-label">${t(l)}</span><span class="slider-value">${S.adj[k]}${u}</span></div><input type="range" min="${mn}" max="${mx}" value="${S.adj[k]}" data-key="${k}" class="adj-sl" step="${k==='blur'?.5:1}"></div>`}).join('');
+  } else if(S.tab==='filter'){
+    panel=`<div class="section-label">${t('sec_presets')}</div><div class="btn-grid cols-3">`+FILTERS.map((f,i)=>`<div class="filter-card" data-fi="${i}">${f.name}</div>`).join('')+`</div>`;
+  } else if(S.tab==='crop'){
+    panel=`<div class="section-label">${t('sec_transform')}</div>
+      <div class="slider-group"><div class="slider-head"><span class="slider-label">${t('rotation')}</span><span class="slider-value">${S.rotation}°</span></div><input type="range" min="0" max="360" value="${S.rotation}" id="rotSl"></div>
+      <div class="btn-grid cols-2" style="margin-bottom:12px"><button class="action-btn" id="rot90">↻ 90°</button><button class="action-btn ${S.flipH?'active':''}" id="fH">${t('flip_h')}</button><button class="action-btn ${S.flipV?'active':''}" id="fV">${t('flip_v')}</button>${S.cropStart&&S.cropEnd?`<button class="action-btn primary" id="aCrop">${t('crop_apply')}</button>`:'<div></div>'}</div>
+      <p class="hint">${t('crop_hint')}</p>`;
+  } else if(S.tab==='annotate'){
+    panel=`<div class="section-label">${t('sec_tool')}</div>
+      <div class="btn-grid cols-2" style="margin-bottom:12px"><button class="action-btn ${S.annotMode==='draw'?'active':''}" id="mDraw">${t('draw')}</button><button class="action-btn ${S.annotMode==='text'?'active':''}" id="mText">${t('text')}</button></div>
+      ${S.annotMode==='text'?`<input type="text" id="tIn" value="${S.textInput}" placeholder="${t('text_placeholder')}" style="width:100%;margin-bottom:12px">`:''}
+      <div class="section-label">${t('sec_color')}</div><div class="color-row">${['#e05252','#e09050','#e0c840','#50b868','#4a9eff','#a060d0','#ffffff','#000000'].map(c=>`<div class="color-dot ${S.annotColor===c?'active':''}" style="background:${c}" data-clr="${c}"></div>`).join('')}</div>
+      <div class="slider-group"><div class="slider-head"><span class="slider-label">${t('strength')}</span><span class="slider-value">${S.annotSize}</span></div><input type="range" min="1" max="14" value="${S.annotSize}" id="aSzSl"></div>
+      ${S.annotations.length?`<button class="action-btn danger" id="clrAn" style="width:100%">${t('clear_all')}</button>`:''}`;
+  } else if(S.tab==='mosaic'){
+    panel=`<div class="section-label">${t('sec_pixelate')}</div><p class="hint">${t('mosaic_hint')}</p>${S.mosaicStart&&S.mosaicEnd?`<button class="action-btn primary" id="aMos" style="width:100%">${t('mosaic_apply')}</button>`:''}`;
+  } else if(S.tab==='frame'){
+    panel=`<div class="section-label">${t('sec_frames')}</div><div class="btn-grid cols-2">`+FRAME_KEYS.map((k,i)=>`<button class="action-btn ${S.frame===i?'active':''}" data-fr="${i}">${t(k)}</button>`).join('')+`</div>`;
+  } else if(S.tab==='watermark'){
+    panel=`<div class="section-label">${t('sec_watermark')}</div><input type="text" id="wmT" value="${S.watermark}" placeholder="${t('wm_placeholder')}" style="width:100%;margin-bottom:12px">
+      <div class="section-label">${t('sec_position')}</div><div class="btn-grid cols-2" style="margin-bottom:12px">${[['tl','tl'],['tr','tr'],['bl','bl'],['br','br']].map(([p,k])=>`<button class="action-btn ${S.wmPos===p?'active':''}" data-wmp="${p}">${t(k)}</button>`).join('')}</div>
+      <div class="slider-group"><div class="slider-head"><span class="slider-label">${t('opacity')}</span><span class="slider-value">${S.wmOpacity}%</span></div><input type="range" min="10" max="100" value="${S.wmOpacity}" id="wmOSl"></div>`;
+  } else if(S.tab==='bg'){
+    panel=`<div class="section-label">${t('sec_bg_remove')}</div><p class="hint">${t('bg_click_hint')}</p>
+      <div class="slider-group"><div class="slider-head"><span class="slider-label">${t('tolerance')}</span><span class="slider-value">${S.bgTolerance}</span></div><input type="range" min="5" max="80" value="${S.bgTolerance}" id="bgTolSl"></div>
+      <div class="section-label" style="margin-top:16px">${t('sec_bg_replace')}</div>
+      <div class="bg-colors">${['#1a1a2e','#0f3460','#16213e','#1b4332','#3c1642','#4a0404','#f5f0eb','#ffffff','#e8e4df','#d4c5a9','#2d2d2d','#000000'].map(c=>`<div class="bg-color-btn ${S.bgColor===c?'active':''}" style="background:${c}" data-bgc="${c}"></div>`).join('')}</div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:12px"><span class="slider-label">${t('bg_custom_color')}</span><input type="color" id="bgCustom" value="${S.bgColor}" style="width:32px;height:28px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;padding:0"></div>
+      <div class="btn-grid cols-2"><button class="action-btn" id="bgTransp">${t('bg_transparent')}</button><button class="action-btn" id="bgImg">${t('bg_image')}</button></div>
+      <input type="file" id="bgFi" accept="image/*" style="display:none">
+      <button class="action-btn primary" id="bgApply" style="width:100%;margin-top:8px">${t('bg_color')} → ${t('sec_bg_replace')}</button>`;
+  }
+
+  let wmStyle='';if(S.watermark){const vp=S.wmPos;wmStyle=`${vp[0]==='t'?'top:16px':'bottom:16px'};${vp[1]==='l'?'left:16px':'right:16px'};opacity:${S.wmOpacity/100};font-size:clamp(11px,2.2vw,22px)`}
+  let aSVG='';S.annotations.forEach(a=>{if(a.type==='path'){const d=a.points.map((p,i)=>`${i===0?'M':'L'}${p.x} ${p.y}`).join(' ');aSVG+=`<path d="${d}" stroke="${a.color}" stroke-width="${a.size}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`}else if(a.type==='text'){aSVG+=`<text x="${a.x}" y="${a.y}" fill="${a.color}" font-size="${a.size*6}" font-family="DM Sans,sans-serif" font-weight="600">${a.text}</text>`}});
+  if(S.drawing&&S.currentPath.length>0){const d=S.currentPath.map((p,i)=>`${i===0?'M':'L'}${p.x} ${p.y}`).join(' ');aSVG+=`<path d="${d}" stroke="${S.annotColor}" stroke-width="${S.annotSize}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`}
+  const cur=(S.cropMode||S.mosaicMode||S.annotMode||S.tab==='bg')?'crosshair':'default';
+  const showChecker=S.tab==='bg';
+
+  app.innerHTML=`<div class="app"><div class="sidebar">
+    <div class="sidebar-header"><div class="header-top"><div class="logo-mark">C</div><div><div class="logo-text">IMAGE STUDIO</div><div class="logo-sub">by CCC</div></div>
+    <div class="header-actions"><button class="icon-btn" id="bSet" title="${t('settings')}">⚙</button><button class="icon-btn" id="bNew" title="${t('new_window')}">⧉</button><button class="icon-btn" id="bHelp" title="${t('help')}">?</button><button class="icon-btn" id="bAbout" title="${t('about')}">ⓘ</button>
+    <button class="icon-btn ${S.histIdx<=0?'disabled':''}" id="bUndo" title="Undo">↶</button><button class="icon-btn ${S.histIdx>=S.history.length-1?'disabled':''}" id="bRedo" title="Redo">↷</button></div></div>
+    <div class="file-info">${S.fileName}</div></div>
+    <div class="tabs">${tabs.map(t2=>`<div class="tab ${S.tab===t2.id?'active':''}" data-tab="${t2.id}"><span class="tab-icon">${t2.icon}</span>${t(t2.k)}</div>`).join('')}</div>
+    <div class="panel" id="pnl">${panel}</div>
+    <div class="sidebar-footer"><button class="footer-btn" id="bReset">${t('reset')}</button><button class="footer-btn" id="bNewF">${t('new_file')}</button><button class="footer-btn export" id="bExp">${t('export_btn')}</button></div>
+  </div>
+  <div class="canvas-area"><div class="canvas-bg"></div><div class="canvas-vignette"></div>
+    <div class="canvas-wrapper ${showChecker?'checker-bg':''}" id="cWrap" style="${fsCss};cursor:${cur}">
+      <img id="mImg" src="${S.image}" crossorigin="anonymous" style="filter:${buildFilter(S.adj)};transform:rotate(${S.rotation}deg) scaleX(${S.flipH?-1:1}) scaleY(${S.flipV?-1:1})" alt="">
+      ${aSVG?`<svg class="annot-svg">${aSVG}</svg>`:''}
+      ${S.watermark?`<div class="wm-ov" style="${wmStyle}">${S.watermark}</div>`:''}
+    </div>
+    ${S.processing?`<div class="processing"><div class="spinner"></div><div class="processing-text">${t('bg_processing')}</div></div>`:''}
+  </div></div>`;
+
+  imgEl=document.getElementById('mImg');wrapEl=document.getElementById('cWrap');
+
+  // Bindings
+  document.querySelectorAll('[data-tab]').forEach(el=>el.onclick=()=>setTab(el.dataset.tab));
+  document.getElementById('bUndo').onclick=undo;document.getElementById('bRedo').onclick=redo;
+  document.getElementById('bReset').onclick=resetAll;
+  document.getElementById('bNewF').onclick=()=>{S.image=null;S.fileName='';render()};
+  document.getElementById('bExp').onclick=exportImage;
+  document.getElementById('bSet').onclick=showSettings;
+  document.getElementById('bNew').onclick=()=>window.open(location.href,'_blank');
+  document.getElementById('bHelp').onclick=()=>showModal(t('help_title'),t('help_body'));
+  document.getElementById('bAbout').onclick=()=>showModal(t('about_title'),t('about_body'));
+
+  document.querySelectorAll('.adj-sl').forEach(el=>{el.oninput=()=>setAdj(el.dataset.key,parseFloat(el.value))});
+  document.querySelectorAll('[data-fi]').forEach(el=>{el.onclick=()=>applyFilter(FILTERS[el.dataset.fi])});
+  document.querySelectorAll('[data-fr]').forEach(el=>{el.onclick=()=>{pushHist();S.frame=parseInt(el.dataset.fr);render()}});
+  document.querySelectorAll('[data-clr]').forEach(el=>{el.onclick=()=>{S.annotColor=el.dataset.clr;render()}});
+  document.querySelectorAll('[data-wmp]').forEach(el=>{el.onclick=()=>{pushHist();S.wmPos=el.dataset.wmp;render()}});
+  document.querySelectorAll('[data-bgc]').forEach(el=>{el.onclick=()=>{S.bgColor=el.dataset.bgc;render()}});
+
+  const rotSl=document.getElementById('rotSl');if(rotSl)rotSl.oninput=()=>{pushHist();S.rotation=parseInt(rotSl.value);render()};
+  const r90=document.getElementById('rot90');if(r90)r90.onclick=()=>{pushHist();S.rotation=(S.rotation+90)%360;render()};
+  const fH=document.getElementById('fH');if(fH)fH.onclick=()=>{pushHist();S.flipH=!S.flipH;render()};
+  const fV=document.getElementById('fV');if(fV)fV.onclick=()=>{pushHist();S.flipV=!S.flipV;render()};
+  const aCr=document.getElementById('aCrop');if(aCr)aCr.onclick=applyCrop;
+  const aMs=document.getElementById('aMos');if(aMs)aMs.onclick=applyMosaic;
+  const mD=document.getElementById('mDraw');if(mD)mD.onclick=()=>{S.annotMode='draw';render()};
+  const mT=document.getElementById('mText');if(mT)mT.onclick=()=>{S.annotMode='text';render()};
+  const tI=document.getElementById('tIn');if(tI){tI.oninput=()=>{S.textInput=tI.value};tI.focus()}
+  const aS=document.getElementById('aSzSl');if(aS)aS.oninput=()=>{S.annotSize=parseInt(aS.value);render()};
+  const cA=document.getElementById('clrAn');if(cA)cA.onclick=()=>{pushHist();S.annotations=[];render()};
+  const wT=document.getElementById('wmT');if(wT)wT.oninput=()=>{S.watermark=wT.value;render()};
+  const wO=document.getElementById('wmOSl');if(wO)wO.oninput=()=>{pushHist();S.wmOpacity=parseInt(wO.value);render()};
+  const bgTol=document.getElementById('bgTolSl');if(bgTol)bgTol.oninput=()=>{S.bgTolerance=parseInt(bgTol.value);render()};
+  const bgCus=document.getElementById('bgCustom');if(bgCus)bgCus.oninput=()=>{S.bgColor=bgCus.value;render()};
+  const bgTr=document.getElementById('bgTransp');if(bgTr)bgTr.onclick=()=>replaceBgColor('transparent');
+  const bgIm=document.getElementById('bgImg');if(bgIm)bgIm.onclick=()=>document.getElementById('bgFi')?.click();
+  const bgFi=document.getElementById('bgFi');if(bgFi)bgFi.onchange=e=>replaceBgImage(e.target.files[0]);
+  const bgAp=document.getElementById('bgApply');if(bgAp)bgAp.onclick=()=>replaceBgColor(S.bgColor);
+
+  // Canvas events
+  if(wrapEl){
+    const down=e=>{e.preventDefault();const pos=getRelPos(e,wrapEl);
+      if(S.tab==='bg'&&imgEl){
+        const rect=wrapEl.getBoundingClientRect();
+        const sx=imgEl.naturalWidth/rect.width,sy=imgEl.naturalHeight/rect.height;
+        removeBgAtPoint(Math.round(pos.x*sx),Math.round(pos.y*sy));return;
+      }
+      if(S.cropMode){S.cropStart=pos;S.cropEnd=null;S.isCropping=true}
+      else if(S.mosaicMode){S.mosaicStart=pos;S.mosaicEnd=null;S.isMosaicing=true}
+      else if(S.annotMode==='draw'){S.drawing=true;S.currentPath=[pos]}
+      else if(S.annotMode==='text'&&S.textInput.trim()){pushHist();S.annotations.push({type:'text',x:pos.x,y:pos.y,text:S.textInput,color:S.annotColor,size:S.annotSize});S.textInput='';render()}
+    };
+    const move=e=>{if(!S.isCropping&&!S.isMosaicing&&!S.drawing)return;e.preventDefault();const pos=getRelPos(e.touches?e.touches[0]:e,wrapEl);
+      if(S.isCropping){S.cropEnd=pos;let ov=wrapEl.querySelector('.crop-ov');if(!ov){ov=document.createElement('div');ov.className='crop-ov';wrapEl.appendChild(ov)}const l=Math.min(S.cropStart.x,pos.x),tp=Math.min(S.cropStart.y,pos.y);ov.style.cssText=`left:${l}px;top:${tp}px;width:${Math.abs(pos.x-S.cropStart.x)}px;height:${Math.abs(pos.y-S.cropStart.y)}px;position:absolute;border:2px dashed var(--accent);background:rgba(200,149,108,.08);pointer-events:none;z-index:5`}
+      else if(S.isMosaicing){S.mosaicEnd=pos;let ov=wrapEl.querySelector('.mosaic-ov');if(!ov){ov=document.createElement('div');ov.className='mosaic-ov';wrapEl.appendChild(ov)}const l=Math.min(S.mosaicStart.x,pos.x),tp=Math.min(S.mosaicStart.y,pos.y);ov.style.cssText=`left:${l}px;top:${tp}px;width:${Math.abs(pos.x-S.mosaicStart.x)}px;height:${Math.abs(pos.y-S.mosaicStart.y)}px;position:absolute;border:2px dashed #e09050;background:rgba(224,144,80,.08);pointer-events:none;z-index:5`}
+      else if(S.drawing){S.currentPath.push(pos);const svg=wrapEl.querySelector('.annot-svg')||document.createElementNS('http://www.w3.org/2000/svg','svg');if(!svg.parentNode){svg.setAttribute('class','annot-svg');svg.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:4';wrapEl.appendChild(svg)}let lp=svg.querySelector('.lp');if(!lp){lp=document.createElementNS('http://www.w3.org/2000/svg','path');lp.setAttribute('class','lp');lp.setAttribute('fill','none');lp.setAttribute('stroke-linecap','round');lp.setAttribute('stroke-linejoin','round');svg.appendChild(lp)}lp.setAttribute('stroke',S.annotColor);lp.setAttribute('stroke-width',S.annotSize);lp.setAttribute('d',S.currentPath.map((p,i)=>`${i===0?'M':'L'}${p.x} ${p.y}`).join(' '))}
+    };
+    const up=()=>{if(S.isCropping){S.isCropping=false;if(S.cropStart&&S.cropEnd)render()}else if(S.isMosaicing){S.isMosaicing=false;if(S.mosaicStart&&S.mosaicEnd)render()}else if(S.drawing&&S.currentPath.length>1){pushHist();S.annotations.push({type:'path',points:[...S.currentPath],color:S.annotColor,size:S.annotSize});S.drawing=false;S.currentPath=[];render()}else{S.drawing=false;S.currentPath=[]}};
+    wrapEl.onmousedown=down;wrapEl.ontouchstart=down;document.onmousemove=move;document.ontouchmove=move;document.onmouseup=up;document.ontouchend=up;
+  }
+  document.onkeydown=e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo()}if(e.ctrlKey&&e.key==='y'){e.preventDefault();redo()}if(e.ctrlKey&&e.key==='s'){e.preventDefault();exportImage()}};
+}
+
+document.addEventListener('dragover',e=>e.preventDefault());
+document.addEventListener('drop',e=>{e.preventDefault();loadFile(e.dataTransfer.files?.[0])});
+document.addEventListener('paste',e=>{const it=e.clipboardData?.items;if(!it)return;for(let i=0;i<it.length;i++)if(it[i].type.startsWith('image/')){loadFile(it[i].getAsFile());break}});
+render();
+</script>
+</body>
+</html>
