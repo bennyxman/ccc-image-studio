@@ -1,28 +1,24 @@
-# BridgePoint Image Studio v3.1 — Real Estate Edition (Final)
+BridgePoint Image Studio v3.1 — Edição Imobiliária (Final)
+Edição Profissional de Imagens Imobiliárias — por BridgePointAfreuropa
 
-**Professional Real Estate Image Editing** — by BridgePointAfreuropa
+🔗 Em direto: https://bennyxman.github.io/ccc-image-studio
 
-🔗 **Live:** [https://bennyxman.github.io/ccc-image-studio](https://bennyxman.github.io/ccc-image-studio)
+🌍 Alemão | Inglês | Espanhol | Português | Francês
 
-🌍 Deutsch | English | Español | Português | Français
+✨ Novidades na versão 3.1
+🌓 Tema Claro/Escuro — Alternar entre os modos claro e escuro (guardado no browser)
+📖 Tutorial Interativo — Visita guiada passo a passo por todos os recursos com destaques
+Recursos para o mercado imobiliário
+🏠 Predefinições com um clique — Interior, Fachada, Construção, Terreno, Crepúsculo, Documento
+📋 Banner de Informação do Projeto — Nome, Localização, Data + Marca da empresa na exportação
+◧ Antes/Depois — Comparação interativa de sliders + exportação lado a lado
+💾 Modelos — Guarde e reutilize as definições em várias imagens
+🖼️ Multi-Imagem — Carregue várias imagens e alterne entre elas
+Recursos do editor
+◐ Ajustes (7 deslizadores) · ◈ 12 predefinições de filtro · ⬔ Cortar/Rodar/Inverter
+✎ Notas (Desenho + Texto) · ▦ Mosaico/Pixelar · ❑ 8 Molduras Estilos
+◎ Marca de água · 🪄 Remoção e Substituição de Fundo
+Privacidade
+100% do lado do cliente. Nenhuma imagem é enviada. Funciona offline.
 
-## ✨ What's New in v3.1
-- 🌓 **Dark/Light Theme** — Toggle between dark and light mode (saved in browser)
-- 📖 **Interactive Tutorial** — Step-by-step guided tour through all features with highlights
-
-## Real Estate Features
-- 🏠 **One-Click Presets** — Interior, Facade, Construction, Land, Twilight, Document
-- 📋 **Project Info Banner** — Name, Location, Date + Company branding on export
-- ◧ **Before/After** — Interactive slider comparison + export as side-by-side
-- 💾 **Templates** — Save & reuse settings across images
-- 🖼️ **Multi-Image** — Load multiple images, switch between them
-
-## Editor Features
-- ◐ Adjustments (7 sliders) · ◈ 12 Filter Presets · ⬔ Crop/Rotate/Flip
-- ✎ Annotations (Draw + Text) · ▦ Mosaic/Pixelate · ❑ 8 Frame Styles
-- ◎ Watermark · 🪄 Background Removal & Replacement
-
-## Privacy
-100% client-side. No images uploaded. Works offline.
-
-© 2026 BridgePointAfreuropa
+© 2026 BridgePointAfreurope
