@@ -484,7 +484,116 @@ function showTutStep(){
 function showHelpModal(){
   showModal(t('hlp_t'),t('hlp_b')+'<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--brd)"><button class="ab pri" id="tutStartBtn" style="width:100%;padding:12px;font-size:12px">'+t('tut_start')+'</button></div>');
 }
+// ═══════════════════════════════════════════════════════
+//  TUTORIAL SYSTEM — GLOBAL DEFINITION (FIXED)
+// ═══════════════════════════════════════════════════════
 
+let tutStep = 0;
+let tutActive = false;
+const TUT_SELECTORS = [
+  '.hd',
+  '.img-strip',
+  '.tabs [data-tb="re"]',
+  '.tabs [data-tb="adj"]',
+  '.tabs [data-tb="crp"]',
+  '.tabs [data-tb="ann"]',
+  '.tabs [data-tb="pi"]',
+  '.tabs [data-tb="ba"]',
+  '.tabs [data-tb="tpl"]',
+  '.sf .ex'
+];
+const TUT_KEYS = [
+  'tut_s1', 'tut_s2', 'tut_s3', 'tut_s4', 'tut_s5',
+  'tut_s6', 'tut_s7', 'tut_s8', 'tut_s9', 'tut_s10'
+];
+
+window.startTutorial = function() {
+  const img = curImg();
+  if (!img) {
+    showModal(t('hlp_t'), `<div style="text-align:center;padding:12px 0">
+      <div style="font-size:40px;margin-bottom:12px">📸</div>
+      <div style="font-size:14px;font-weight:700;color:var(--tx1);margin-bottom:8px">${t('tut_s1_t')}</div>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.7;margin-bottom:16px">${t('tut_s1_d')}</div>
+      <p class="hn" style="margin-bottom:0">${t('up')} → ${t('tut_start')}</p>
+    </div>`);
+    return;
+  }
+  tutStep = 0;
+  tutActive = true;
+  showTutStep();
+};
+
+function endTutorial() {
+  tutActive = false;
+  const tutDiv = document.getElementById('tutorial');
+  if (tutDiv) tutDiv.innerHTML = '';
+}
+
+function showTutStep() {
+  if (tutStep >= TUT_KEYS.length) {
+    endTutorial();
+    return;
+  }
+  
+  const sel = TUT_SELECTORS[tutStep];
+  const el = document.querySelector(sel);
+  
+  if (!el) {
+    tutStep++;
+    showTutStep();
+    return;
+  }
+  
+  const r = el.getBoundingClientRect();
+  const total = TUT_KEYS.length;
+  const k = TUT_KEYS[tutStep];
+  
+  let tx = r.right + 16;
+  let ty = r.top;
+  
+  if (tx + 340 > window.innerWidth) {
+    tx = r.left - 340;
+    if (tx < 10) tx = r.left + r.width / 2 - 160;
+  }
+  if (ty + 200 > window.innerHeight) ty = window.innerHeight - 220;
+  if (ty < 10) ty = r.bottom + 12;
+  
+  const tutDiv = document.getElementById('tutorial');
+  if (!tutDiv) return;
+  
+  tutDiv.innerHTML = `
+    <div class="tut-backdrop" id="tutBd"></div>
+    <div class="tut-highlight" style="left:${r.left - 6}px;top:${r.top - 6}px;width:${r.width + 12}px;height:${r.height + 12}px"></div>
+    <div class="tut-tooltip" style="left:${tx}px;top:${ty}px">
+      <div class="tut-step">${t('tut_start')} — ${tutStep + 1}/${total}</div>
+      <div class="tut-title">${t(k + '_t')}</div>
+      <div class="tut-desc">${t(k + '_d')}</div>
+      <div class="tut-btns">
+        <div class="tut-progress">
+          ${Array.from({ length: total }, (_, i) => `<div class="tut-dot ${i === tutStep ? 'on' : ''}"></div>`).join('')}
+        </div>
+        ${tutStep > 0 ? `<button class="tut-btn" id="tutPrevBtn">${t('tut_prev')}</button>` : `<button class="tut-btn" id="tutSkipBtn">${t('tut_skip')}</button>`}
+        <button class="tut-btn pri" id="tutNextBtn">${tutStep < total - 1 ? t('tut_next') : t('tut_done')}</button>
+      </div>
+    </div>`;
+  
+  const bd = document.getElementById('tutBd');
+  if (bd) bd.onclick = endTutorial;
+  
+  const prevBtn = document.getElementById('tutPrevBtn');
+  if (prevBtn) prevBtn.onclick = () => { tutStep--; showTutStep(); };
+  
+  const skipBtn = document.getElementById('tutSkipBtn');
+  if (skipBtn) skipBtn.onclick = endTutorial;
+  
+  const nextBtn = document.getElementById('tutNextBtn');
+  if (nextBtn) nextBtn.onclick = () => { tutStep++; showTutStep(); };
+}
+
+// Sicherstellen, dass window.startTutorial existiert
+window.endTutorial = endTutorial;
+window.showTutStep = showTutStep;
+  
 // ─── RENDER ──────────────────────────────────────
 function render(){
 const app=document.getElementById('app');
